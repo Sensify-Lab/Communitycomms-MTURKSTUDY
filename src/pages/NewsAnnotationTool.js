@@ -9,7 +9,6 @@ const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
   };
 
-
     const sampleArticles = [
         {
           id: 1,
@@ -61,7 +60,6 @@ const shuffleArray = (array) => {
           title: "Scientists Develop Promising New Cancer Treatment",
           content: "A team of scientists has developed a promising new cancer treatment that uses targeted immunotherapy to attack cancer cells while preserving healthy tissue. Early clinical trials have shown encouraging results, with some patients experiencing significant tumor shrinkage. Researchers are optimistic that this breakthrough could lead to more effective cancer treatments in the near future..."
         },
-        // 40 more articles continue...
       ];
       
 
@@ -75,18 +73,49 @@ export default function NewsAnnotationTool() {
     const [selectedSubcategory, setSelectedSubcategory] = useState("");
     const [showInstructions, setShowInstructions] = useState(false);
 
+    const [showSurvey, setShowSurvey] = useState(false);
+    const [surveyResponses, setSurveyResponses] = useState({});
+    const [confidence, setConfidence] = useState(0);
+    const [bias, setBias] = useState(0);
+    const [difficulty, setDifficulty] = useState(0);
+    const [openFeedback, setOpenFeedback] = useState("");
+    const [showThankYou, setShowThankYou] = useState(false);
+    
+
+    // useEffect(() => {
+    //     setArticles(shuffleArray([...sampleArticles]));
+    // }, []);
+
     useEffect(() => {
-        setArticles(shuffleArray([...sampleArticles]));
-    }, []);
+        setArticles(shuffleArray([...sampleArticles.slice(0, 3)]));
+      }, []);
 
     const handleNextArticle = () => {
-        if (currentArticleIndex < articles.length - 1) {
-            setCurrentArticleIndex(currentArticleIndex + 1);
-            setSelectedText("");
-            setSelectedCategory("");
-            setSelectedSubcategory("");
-        }
-    };
+        if (showSurvey) {
+            const articleId = articles[currentArticleIndex]?.id;
+            setSurveyResponses((prev) => ({
+              ...prev,
+              [articleId]: { confidence, bias, difficulty, openFeedback },
+            }));
+      
+            if (currentArticleIndex < articles.length - 1) {
+              setCurrentArticleIndex(currentArticleIndex + 1);
+              setSelectedText("");
+              setSelectedCategory("");
+              setSelectedSubcategory("");
+              setShowSurvey(false);
+              setConfidence(0);
+              setBias(0);
+              setDifficulty(0);
+              setOpenFeedback("");
+            } else {
+              setShowThankYou(true);
+            }
+          } else {
+            setShowSurvey(true);
+          }
+        };
+    
 
     const handleAnnotation = (label) => {
         const articleId = articles[currentArticleIndex]?.id;
@@ -140,6 +169,24 @@ export default function NewsAnnotationTool() {
         Persuasive_Propaganda: ["Repetition", "Exaggeration", "Flag-Waving", "Slogans", "Bandwagon", "Causal Oversimplification", "Doubt"],
         Inflammatory_Language: ["Demonization", "Name-Calling", "Hyperbole", "Straw Man Arguments"],
     };
+
+
+    if (showThankYou) {
+        const generateCode = () => `MTURK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const completionCode = generateCode();
+
+        return (
+          <div className="w-full h-screen flex items-center justify-center bg-white">
+            <div className="max-w-xl text-center p-6 border border-gray-300 rounded shadow">
+              <h2 className="text-2xl font-bold mb-4">🎉 Thank You!</h2>
+              <p className="mb-4 text-gray-700">Thank you for taking part in this study. Your responses have been recorded.</p>
+              <p className="mb-4 text-gray-700">Please copy and paste the following completion code into MTurk:</p>
+              <div className="bg-gray-100 text-lg font-mono p-4 rounded border border-dashed border-gray-400 mb-4">{completionCode}</div>
+              <p className="text-sm text-gray-500">You may now close this window or return to the task page.</p>
+            </div>
+          </div>
+        );
+      }
 
     return (
         <div className="flex w-full">
@@ -226,13 +273,11 @@ export default function NewsAnnotationTool() {
                 )}
 
      {/* Next Article Button */}
-     <div className="mt-6">
+     {/* <div className="mt-6">
      <Button onClick={handleNextArticle} disabled={currentArticleIndex >= articles.length - 1} className="bg-blue-500">
        Next Article
      </Button>
-   </div>
-
-
+   </div> */}
                 {/* Display Annotations with Remove Feature */}
                 {textAnnotations[articles[currentArticleIndex]?.id]?.length > 0 && (
                     <div className="mt-6 bg-gray-100 p-4 rounded-md">
@@ -247,7 +292,92 @@ export default function NewsAnnotationTool() {
                         ))}
                     </div>
                 )}
+
+
+            {/* Survey Form */}
+        {showSurvey ? (
+          <div className="mt-8 text-left">
+            <h3 className="text-lg font-semibold mb-2">🧠 Post-Annotation Survey</h3>
+
+            <label className="block mt-4">1. How confident are you in your tagging decisions?</label>
+            <select value={confidence} onChange={(e) => setConfidence(Number(e.target.value))} className="w-full p-2 border rounded">
+              <option value={0}>Select</option>
+              <option value={1}>1 – Not at all confident</option>
+              <option value={2}>2 – Slightly confident</option>
+              <option value={3}>3 – Moderately confident</option>
+              <option value={4}>4 – Very confident</option>
+              <option value={5}>5 – Extremely confident</option>
+            </select>
+
+            <label className="block mt-4">2. To what extent is the article misleading or biased?</label>
+            <select value={bias} onChange={(e) => setBias(Number(e.target.value))} className="w-full p-2 border rounded">
+              <option value={0}>Select</option>
+              <option value={1}>1 – Not at all</option>
+              <option value={2}>2 – Slightly</option>
+              <option value={3}>3 – Moderately</option>
+              <option value={4}>4 – Very much</option>
+              <option value={5}>5 – Extremely</option>
+            </select>
+
+            <label className="block mt-4">3. How difficult was it to tag the article?</label>
+            <select value={difficulty} onChange={(e) => setDifficulty(Number(e.target.value))} className="w-full p-2 border rounded">
+              <option value={0}>Select</option>
+              <option value={1}>1 – Not at all difficult</option>
+              <option value={2}>2 – Slightly difficult</option>
+              <option value={3}>3 – Moderately difficult</option>
+              <option value={4}>4 – Very difficult</option>
+              <option value={5}>5 – Extremely difficult</option>
+            </select>
+
+            <label className="block mt-4">4. Why did you tag this way? What made it stand out?
+            Please explain your reasoning by referring to the specific words, phrases, or sentences you highlighted.
+            Provide your reasoning for each of the highlights you made in this article. Explain why you believe they represent persuasive propaganda, inflammatory language, or something misleading.
+
+            </label>
+            <textarea value={openFeedback} onChange={(e) => setOpenFeedback(e.target.value)} rows={6} className="w-full p-2 border rounded" placeholder="For example: “I tagged the phrase ‘reckless and corrupt regime’ as inflammatory because it uses strong language to attack without evidence.."></textarea>
+
+            <Button
+              onClick={handleNextArticle}
+              className="mt-4 bg-green-600 text-white"
+              disabled={confidence === 0 || bias === 0 || difficulty === 0 || openFeedback.trim() === ""}
+            >
+              {currentArticleIndex < articles.length - 1 ? "Submit Survey & Load Next Article" : "Finish"}
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-6">
+            <Button onClick={handleNextArticle} className="bg-blue-500">Next Article</Button>
+          </div>
+        )}
             </div>
+
+
+{/* Instructions Panel on Right */}
+<div className="w-1/4 p-4 bg-white shadow-md hidden md:block">
+    <h3 className="text-lg font-bold mb-3">📝 Instructions</h3>
+    <p className="text-sm mb-2">
+        You will be presented with <strong>3 news articles</strong>. Your task is to <strong>read each article carefully</strong> and
+        <strong> annotate any parts, phrases, or words</strong> that seem:
+    </p>
+    <ul className="list-disc list-inside text-sm mb-2">
+        <li>Misleading</li>
+        <li>Inflammatory</li>
+        <li>Persuasive propaganda</li>
+    </ul>
+    <p className="text-sm mb-2">
+        These could be clues that the news might be <strong>fake</strong>, <strong>satire</strong>, or <strong>misinformation</strong>.
+    </p>
+    <p className="text-sm mb-2">
+        Use the provided categories to tag the selected text accordingly.
+    </p>
+    <p className="text-sm mb-2">
+        Once you're done with an article, click <strong>"Next Article"</strong>. After reviewing all three articles, you’ll be asked a few short questions.
+    </p>
+    <p className="text-sm text-gray-500 italic">
+        Be thoughtful—your annotations help us understand how people detect bias or misinformation.
+    </p>
+</div>
+
         </div>
     );
 }
