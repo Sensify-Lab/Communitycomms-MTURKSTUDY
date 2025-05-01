@@ -61,6 +61,23 @@ const shuffleArray = (array) => {
           content: "A team of scientists has developed a promising new cancer treatment that uses targeted immunotherapy to attack cancer cells while preserving healthy tissue. Early clinical trials have shown encouraging results, with some patients experiencing significant tumor shrinkage. Researchers are optimistic that this breakthrough could lead to more effective cancer treatments in the near future..."
         },
       ];
+
+      const downloadAnnotations = (annotations, textAnnotations, surveyResponses) => {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const data = {
+          annotations,
+          textAnnotations,
+          surveyResponses,
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `annotations_${timestamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
       
 
 export default function NewsAnnotationTool() {
@@ -92,7 +109,37 @@ export default function NewsAnnotationTool() {
 
     const handleNextArticle = () => {
         if (showSurvey) {
+            //validate survey responses here
+            if (
+              confidence === 0 ||
+              bias === 0 ||
+              difficulty === 0 ||
+              openFeedback.trim() === ""
+            ) {
+              alert("Please answer all survey questions before continuing.");
+              return;
+            }
+
+                // Validate that there is at least one valid annotation
+
             const articleId = articles[currentArticleIndex]?.id;
+            const annotationsForArticle = textAnnotations[articleId] || [];
+
+            if (annotationsForArticle.length === 0) {
+                alert("Please annotate at least one phrase before continuing.");
+                return;
+              }
+          
+              const anyInvalid = annotationsForArticle.some(
+                (a) => !a.category || !a.subcategory
+              );
+          
+              if (anyInvalid) {
+                alert("Each annotation must include a category and subcategory.");
+                return;
+              }
+    // Save survey responses and continue
+
             setSurveyResponses((prev) => ({
               ...prev,
               [articleId]: { confidence, bias, difficulty, openFeedback },
@@ -170,10 +217,17 @@ export default function NewsAnnotationTool() {
         Inflammatory_Language: ["Demonization", "Name-Calling", "Hyperbole", "Straw Man Arguments"],
     };
 
+    useEffect(() => {
+        if (showThankYou) {
+          downloadAnnotations(annotations, textAnnotations, surveyResponses);
+        }
+      }, [showThankYou]);
+
 
     if (showThankYou) {
         const generateCode = () => `MTURK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         const completionCode = generateCode();
+
 
         return (
           <div className="w-full h-screen flex items-center justify-center bg-white">
@@ -183,6 +237,12 @@ export default function NewsAnnotationTool() {
               <p className="mb-4 text-gray-700">Please copy and paste the following completion code into MTurk:</p>
               <div className="bg-gray-100 text-lg font-mono p-4 rounded border border-dashed border-gray-400 mb-4">{completionCode}</div>
               <p className="text-sm text-gray-500">You may now close this window or return to the task page.</p>
+              {process.env.NODE_ENV !== "production" && (
+            <Button onClick={() => downloadAnnotations(annotations, textAnnotations, surveyResponses)} className="mt-4 bg-purple-600 text-white">
+              Download All Responses (JSON)
+            </Button>
+          )
+  }          
             </div>
           </div>
         );
