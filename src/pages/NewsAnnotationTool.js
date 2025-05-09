@@ -63,22 +63,6 @@ const shuffleArray = (array) => {
         },
       ];
 
-      const downloadAnnotations = (annotations, textAnnotations, surveyResponses) => {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const data = {
-          annotations,
-          textAnnotations,
-          surveyResponses,
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `annotations_${timestamp}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      };
       
 
 export default function NewsAnnotationTool() {
@@ -98,6 +82,31 @@ export default function NewsAnnotationTool() {
     const [difficulty, setDifficulty] = useState(0);
     const [openFeedback, setOpenFeedback] = useState("");
     const [showThankYou, setShowThankYou] = useState(false);
+
+    const downloadAnnotations = (annotations, textAnnotations, surveyResponses) => {
+        const articleTitles = articles.map((article) => ({
+            id: article.id,
+            title: article.title,
+        }));
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
+        const data = {
+          annotations,
+          textAnnotations,
+          surveyResponses,
+          articleTitles,
+          timestamp: new Date().toISOString(),
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `annotations_${timestamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+      
     
 
     // useEffect(() => {
@@ -227,10 +236,15 @@ export default function NewsAnnotationTool() {
 
     useEffect(() => {
         if (showThankYou) {
+            const articleTitles = articles.map((article) => ({
+                id: article.id,
+                title: article.title,
+            }))
           const data = {
             annotations,
             textAnnotations,
             surveyResponses,
+            articleTitles,
             timestamp: new Date().toISOString(),
           };
     
