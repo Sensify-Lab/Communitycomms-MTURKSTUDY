@@ -73,7 +73,8 @@ export default function NewsAnnotationTool() {
     const [textAnnotations, setTextAnnotations] = useState({});
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedSubcategory, setSelectedSubcategory] = useState("");
-    const [showInstructions, setShowInstructions] = useState(true);
+    const [showRightInstructions, setShowRightInstructions] = useState(true);
+
 
     const [showSurvey, setShowSurvey] = useState(false);
     const [surveyResponses, setSurveyResponses] = useState({});
@@ -287,7 +288,7 @@ export default function NewsAnnotationTool() {
     return (
         <div className="flex w-full">
             {/* Instructions Sidebar */}
-            <div className={`w-1/4 p-4 bg-gray-200 shadow-md transition-all duration-300 ${showInstructions ? "visible opacity-100 pointer-events-auto" : "invisible opacity-0 pointer-events-none"}`}>
+            <div className={`w-1/4 p-4 bg-gray-200 shadow-md transition-all duration-300 ${showRightInstructions ? "visible opacity-100 pointer-events-auto" : "invisible opacity-0 pointer-events-none"}`}>
                 <h3 className="text-lg font-bold mb-2">Annotation Guide</h3>
                 <p className="text-sm mb-2">Use the following categories for labeling:</p>
                 <div className="bg-yellow-100 p-2 rounded mb-2">
@@ -305,13 +306,13 @@ export default function NewsAnnotationTool() {
                         <li>🔥 Hyperbole: Extreme exaggeration to provoke emotions.</li>
                     </ul>
                 </div>
-                <Button onClick={() => setShowInstructions(false)} className="bg-gray-600 text-white w-full">Close Guide</Button>
+                <Button onClick={() => setShowRightInstructions(false)} className="bg-gray-600 text-white w-full">Close Guide</Button>
             </div>
 
             {/* Main Content */}
             <div className="w-3/4 max-w-2xl bg-white p-6 rounded-lg shadow-md text-center">
-                <Button onClick={() => setShowInstructions(!showInstructions)} className="bg-blue-600 text-white mb-4">
-                    {showInstructions ? "Hide Instructions" : "Show Instructions"}
+                <Button onClick={() => setShowRightInstructions(!showRightInstructions)} className="bg-blue-600 text-white mb-4">
+                    {showRightInstructions ? "Hide Instructions" : "Show Instructions"}
                 </Button>
 
                 {articles.length > 0 && (
@@ -449,7 +450,7 @@ export default function NewsAnnotationTool() {
 
 
 {/* Instructions Panel on Right */}
-<div className="w-1/4 p-4 bg-white shadow-md hidden md:block">
+<div className={`w-1/4 p-4 bg-white shadow-md ${showRightInstructions ? "block" : "hidden"}`}>
     <h3 className="text-lg font-bold mb-3">📝 Instructions</h3>
     <p className="text-sm mb-2">
         You will be presented with <strong>3 news articles</strong>. Your task is to <strong>read each article carefully</strong> and
