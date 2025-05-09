@@ -88,7 +88,7 @@ export default function NewsAnnotationTool() {
     const [textAnnotations, setTextAnnotations] = useState({});
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedSubcategory, setSelectedSubcategory] = useState("");
-    const [showInstructions, setShowInstructions] = useState(false);
+    const [showInstructions, setShowInstructions] = useState(true);
 
     const [showSurvey, setShowSurvey] = useState(false);
     const [surveyResponses, setSurveyResponses] = useState({});
@@ -251,7 +251,7 @@ export default function NewsAnnotationTool() {
     return (
         <div className="flex w-full">
             {/* Instructions Sidebar */}
-            <div className={`w-1/4 p-4 bg-gray-200 shadow-md ${showInstructions ? "block" : "hidden"} md:block`}>
+            <div className={`w-1/4 p-4 bg-gray-200 shadow-md transition-all duration-300 ${showInstructions ? "visible opacity-100 pointer-events-auto" : "invisible opacity-0 pointer-events-none"}`}>
                 <h3 className="text-lg font-bold mb-2">Annotation Guide</h3>
                 <p className="text-sm mb-2">Use the following categories for labeling:</p>
                 <div className="bg-yellow-100 p-2 rounded mb-2">
