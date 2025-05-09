@@ -3,6 +3,7 @@ import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { CardContent } from "../components/CardContent";
 
+import { database, ref, push } from "../firebaseConfig";
 
 // Function to shuffle array randomly
 const shuffleArray = (array) => {
@@ -217,9 +218,30 @@ export default function NewsAnnotationTool() {
         Inflammatory_Language: ["Demonization", "Name-Calling", "Hyperbole", "Straw Man Arguments"],
     };
 
+    // useEffect(() => {
+    //     if (showThankYou) {
+    //       downloadAnnotations(annotations, textAnnotations, surveyResponses);
+    //     }
+    //   }, [showThankYou]);
+
+
     useEffect(() => {
         if (showThankYou) {
-          downloadAnnotations(annotations, textAnnotations, surveyResponses);
+          const data = {
+            annotations,
+            textAnnotations,
+            surveyResponses,
+            timestamp: new Date().toISOString(),
+          };
+    
+          const submissionsRef = ref(database, "submissions");
+          push(submissionsRef, data)
+            .then(() => {
+              console.log("Submission saved to Firebase");
+            })
+            .catch((error) => {
+              console.error("Error saving to Firebase:", error);
+            });
         }
       }, [showThankYou]);
 
@@ -437,7 +459,6 @@ export default function NewsAnnotationTool() {
         Be thoughtful—your annotations help us understand how people detect bias or misinformation.
     </p>
 </div>
-
         </div>
     );
 }
