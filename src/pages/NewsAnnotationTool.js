@@ -328,36 +328,39 @@ export default function NewsAnnotationTool() {
       }
 
     return (
-        <div className="flex w-full">
+        <div className="flex w-full justify-center items-start min-h-screen bg-gray-100">
             {/* Instructions Sidebar */}
             <div className={`w-1/4 p-4 bg-gray-200 shadow-md transition-all duration-300 ${showRightInstructions ? "visible opacity-100 pointer-events-auto" : "invisible opacity-0 pointer-events-none"}`}>
                 <h3 className="text-lg font-bold mb-2">Annotation Guide</h3>
                 <p className="text-sm mb-2">Use the following categories for labeling:</p>
                 <div className="bg-yellow-100 p-2 rounded mb-2">
                     <div></div>
-                    <div className="bg-yellow-100 p-3 rounded mb-3">
-    <strong className="text-yellow-600 text-center block mb-2 text-base">Persuasive Propaganda</strong>
-      <DropdownItem icon=" " title="Repetition">Reinforcing a message by repeating it.</DropdownItem>
+                  <div className="bg-yellow-100 p-3 rounded mb-3">
+                    <strong className="text-yellow-600 text-center block mb-2 text-base">Persuasive Propaganda</strong>
+                    <DropdownItem icon=" " title="Repetition">Reinforcing a message by repeating it.</DropdownItem>
                     <DropdownItem icon=" " title="Exaggeration">Overstating or distorting facts.</DropdownItem>
                     <DropdownItem icon=" " title="Flag-Waving">Linking a message to patriotism or national pride.</DropdownItem>
                     <DropdownItem icon=" " title="Slogans">Catchy, emotional phrases designed to influence opinions.</DropdownItem>
                     <DropdownItem icon=" " title="Bandwagon">Encouraging action by claiming "everyone is doing it."</DropdownItem>
                     <DropdownItem icon=" " title="Casual Oversimplification">Reducing a complex issue to a single cause or solution.</DropdownItem>
                     <DropdownItem icon=" " title="Doubt">Sowing uncertainty or questioning the credibility of evidence.</DropdownItem>
-</div>
+                </div>
 
                 </div>
-                <div className="bg-red-100 p-2 rounded mb-2">
-                    <strong className="text-red-600 text-center block mb-2">Inflammatory Language</strong>
-                    <ul className="text-s text-left ml-2">
+                <div className="bg-red-100 p-2 rounded mb-6">
+                    <strong className="text-red-600 text-center block mb-3 mt-3">Inflammatory Language</strong>
+                    <ul className="text-s text-center ml-2">
                     <DropdownItem icon=" " title="Name-Calling">Using demeaning labels or insults to discredit opponents.</DropdownItem>
                     <DropdownItem icon=" " title="Hyperbole">Exaggerating to provoke fear, anger, or excitement.</DropdownItem>
                     <DropdownItem icon=" " title="Demonization">Portraying individuals or groups as evil, immoral, or dangerous.</DropdownItem>
                     <DropdownItem icon=" " title="Straw-Man">Misrepresenting someone's argument to make it easier to attack.</DropdownItem>
                     </ul>
                 </div>
-                <Button onClick={() => setShowRightInstructions(false)} className="bg-gray-600 text-white w-full">Close Guide</Button>
+            
+                <Button onClick={() => 
+                  setShowRightInstructions(false)} className="bg-gray-600 text-white w-full">Close Guide</Button>
             </div>
+            
 
             {/* Main Content */}
             <div className="w-3/4 max-w-2xl bg-white p-6 rounded-lg shadow-md text-center">
@@ -497,7 +500,7 @@ export default function NewsAnnotationTool() {
 
 
 {/* Instructions Panel on Right */}
-<div className={`w-1/4 p-4 bg-white shadow-md ${showRightInstructions ? "block" : "hidden"}`}>
+<div className={`w-1/4 p-4 bg-white transition-all duration-300 ${showRightInstructions ? "visible opacity-100 pointer-events-auto" : "invisible opacity-0 pointer-events-none"}`}>
     <h3 className="text-lg font-bold mb-3">📝 Instructions</h3>
     <p className="text-sm mb-2">
         You will be presented with <strong>3 news articles</strong>. Your task is to <strong>read each article carefully</strong> and
