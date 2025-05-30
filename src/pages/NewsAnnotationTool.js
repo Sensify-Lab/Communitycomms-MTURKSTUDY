@@ -2,14 +2,35 @@ import React, { useState, useEffect } from "react";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { CardContent } from "../components/CardContent";
+import Papa from "papaparse";
 
 import { database, ref, push } from "../firebaseConfig";
+
+const DropdownItem = ({ icon, title, children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+      <div className="mb-1">
+          <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center justify-between w-full text-left text-sm font-bold text-gray-800 hover:text-blue-600 focus:outline-none"
+          >
+              <span>{icon} {title}</span>
+              <span>{isOpen ? "−" : "+"}</span>
+          </button>
+          {isOpen && (
+              <div className="mt-1 ml-4 text-xs text-gray-700 transition-all duration-200">
+                  {children}
+              </div>
+          )}
+      </div>
+  );
+};
 
 // Function to shuffle array randomly
 const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
   };
-
+/*
     const sampleArticles = [
         {
           id: 1,
@@ -62,6 +83,7 @@ const shuffleArray = (array) => {
           content: "A team of scientists has developed a promising new cancer treatment that uses targeted immunotherapy to attack cancer cells while preserving healthy tissue. Early clinical trials have shown encouraging results, with some patients experiencing significant tumor shrinkage. Researchers are optimistic that this breakthrough could lead to more effective cancer treatments in the near future..."
         },
       ];
+    */
 
       
 
@@ -115,8 +137,28 @@ export default function NewsAnnotationTool() {
     // }, []);
 
     useEffect(() => {
+        fetch("/articles.csv")
+        .then((response) => response.text())
+        .then((csvText) => {
+          Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+              const parsedArticles = results.data.map((item, index) => ({
+                id: index + 1,
+                title: item["Headline"],
+                content: item["News body"],
+            }));
+            const randomArticles = shuffleArray(parsedArticles).slice(0, 3);
+            setArticles(randomArticles);
+            },
+          });
+        });
+    }, []);
+    /*
         setArticles(shuffleArray([...sampleArticles.slice(0, 3)]));
       }, []);
+    */
 
     const handleNextArticle = () => {
         if (showSurvey) {
@@ -292,18 +334,26 @@ export default function NewsAnnotationTool() {
                 <h3 className="text-lg font-bold mb-2">Annotation Guide</h3>
                 <p className="text-sm mb-2">Use the following categories for labeling:</p>
                 <div className="bg-yellow-100 p-2 rounded mb-2">
-                    <strong className="text-yellow-600">Persuasive Propaganda</strong>
-                    <ul className="text-xs">
-                        <li>✔ Repetition: Reinforcing a message by repeating it.</li>
-                        <li>✔ Exaggeration: Overstating or distorting facts.</li>
-                        <li>✔ Flag-Waving: Linking a message to patriotism.</li>
-                    </ul>
+                    <div></div>
+                    <div className="bg-yellow-100 p-3 rounded mb-3">
+    <strong className="text-yellow-600 text-center block mb-2 text-base">Persuasive Propaganda</strong>
+      <DropdownItem icon=" " title="Repetition">Reinforcing a message by repeating it.</DropdownItem>
+                    <DropdownItem icon=" " title="Exaggeration">Overstating or distorting facts.</DropdownItem>
+                    <DropdownItem icon=" " title="Flag-Waving">Linking a message to patriotism or national pride.</DropdownItem>
+                    <DropdownItem icon=" " title="Slogans">Catchy, emotional phrases designed to influence opinions.</DropdownItem>
+                    <DropdownItem icon=" " title="Bandwagon">Encouraging action by claiming "everyone is doing it."</DropdownItem>
+                    <DropdownItem icon=" " title="Casual Oversimplification">Reducing a complex issue to a single cause or solution.</DropdownItem>
+                    <DropdownItem icon=" " title="Doubt">Sowing uncertainty or questioning the credibility of evidence.</DropdownItem>
+</div>
+
                 </div>
                 <div className="bg-red-100 p-2 rounded mb-2">
-                    <strong className="text-red-600">Inflammatory Language</strong>
-                    <ul className="text-xs">
-                        <li>🔥 Name-Calling: Using insults to attack credibility.</li>
-                        <li>🔥 Hyperbole: Extreme exaggeration to provoke emotions.</li>
+                    <strong className="text-red-600 text-center block mb-2">Inflammatory Language</strong>
+                    <ul className="text-s text-left ml-2">
+                    <DropdownItem icon=" " title="Name-Calling">Using demeaning labels or insults to discredit opponents.</DropdownItem>
+                    <DropdownItem icon=" " title="Hyperbole">Exaggerating to provoke fear, anger, or excitement.</DropdownItem>
+                    <DropdownItem icon=" " title="Demonization">Portraying individuals or groups as evil, immoral, or dangerous.</DropdownItem>
+                    <DropdownItem icon=" " title="Straw-Man">Misrepresenting someone's argument to make it easier to attack.</DropdownItem>
                     </ul>
                 </div>
                 <Button onClick={() => setShowRightInstructions(false)} className="bg-gray-600 text-white w-full">Close Guide</Button>
@@ -335,9 +385,6 @@ export default function NewsAnnotationTool() {
                     </Button>
                     <Button onClick={() => handleAnnotation("Propaganda")} className="bg-yellow-500">
                         Persuasive Propaganda
-                    </Button>
-                    <Button onClick={() => handleAnnotation("Neutral")} className="bg-green-500">
-                        Neutral Reporting
                     </Button>
                 </div>
 
