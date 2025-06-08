@@ -537,17 +537,7 @@ const handleSubcategoryChange = (e) => {
               <option value={5}>5 – Extremely</option>
             </select>
 
-            <label className="block mt-4">3. How difficult was it to tag the article?</label>
-            <select value={difficulty} onChange={(e) => setDifficulty(Number(e.target.value))} className="w-full p-2 border rounded">
-              <option value={0}>Select</option>
-              <option value={1}>1 – Not at all difficult</option>
-              <option value={2}>2 – Slightly difficult</option>
-              <option value={3}>3 – Moderately difficult</option>
-              <option value={4}>4 – Very difficult</option>
-              <option value={5}>5 – Extremely difficult</option>
-            </select>
-
-            <label className="block mt-4">4. Why did you tag this way? What made it stand out?
+            <label className="block mt-4">3. Why did you tag this way? What made it stand out?
             Please explain your reasoning by referring to the specific words, phrases, or sentences you highlighted.
             Provide your reasoning for each of the highlights you made in this article. Explain why you believe they represent persuasive propaganda, inflammatory language, or something misleading.
 
