@@ -502,27 +502,39 @@ export default function NewsAnnotationTool() {
 {/* Instructions Panel on Right */}
 <div className={`w-1/4 p-4 bg-white transition-all duration-300 ${showRightInstructions ? "visible opacity-100 pointer-events-auto" : "invisible opacity-0 pointer-events-none"}`}>
     <h3 className="text-lg font-bold mb-3">📝 Instructions</h3>
-    <p className="text-sm mb-2">
-        You will be presented with <strong>3 news articles</strong>. Your task is to <strong>read each article carefully</strong> and
-        <strong> annotate any parts, phrases, or words</strong> that seem:
-    </p>
-    <ul className="list-disc list-inside text-sm mb-2">
-        <li>Misleading</li>
-        <li>Inflammatory</li>
-        <li>Persuasive propaganda</li>
-    </ul>
-    <p className="text-sm mb-2">
-        These could be clues that the news might be <strong>fake</strong>, <strong>satire</strong>, or <strong>misinformation</strong>.
-    </p>
-    <p className="text-sm mb-2">
-        Use the provided categories to tag the selected text accordingly.
-    </p>
-    <p className="text-sm mb-2">
-        Once you're done with an article, click <strong>"Next Article"</strong>. After reviewing all three articles, you’ll be asked a few short questions.
-    </p>
-    <p className="text-sm text-gray-500 italic">
-        Be thoughtful—your annotations help us understand how people detect bias or misinformation.
-    </p>
+    <p className="text-sm">
+    You will annotate <strong>3 news articles</strong>. For each article, please follow these steps:
+  </p>
+  <div className="h-4" />
+  <div className="h-4" />
+  <ul className="list-decimal list-inside text-sm space-y-1">
+    <li>
+      <strong>Highlight a section of text</strong> between [] and [] words that you want to annotate.
+    </li>
+    <div className="h-3" />
+    <li>
+      Scroll down and <strong>select a category</strong> using either the buttons or the dropdown menu (e.g., <em>Flame Rhetoric</em> or <em>Persuasive Propaganda</em>).
+    </li>
+    <div className="h-3" />
+    <li>
+      <strong>Choose a subcategory</strong> (e.g., <em>Exaggeration</em>). Your annotation will be saved automatically.
+    </li>
+    <div className="h-3" />
+    <li>
+      Click <strong>"Next Article"</strong> to complete the brief post-article survey.
+    </li>
+    <div className="h-3" />
+    <li>
+      Select <strong>"Submit Survey and Load Next Article"</strong> to move on to the next article.
+    </li>
+    <div className="h-3" />
+  </ul>
+  <p></p>
+<div className="h-4" />
+<p></p>
+  <p className="text-sm text-gray-500 italic">
+    Make sure your highlights are thoughtful and fall within the required word range—your input helps us better understand how people detect biased or misleading content.
+  </p>
 </div>
         </div>
     );
