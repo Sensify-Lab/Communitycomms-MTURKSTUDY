@@ -97,6 +97,10 @@ export default function NewsAnnotationTool() {
     const [selectedSubcategory, setSelectedSubcategory] = useState("");
     const [showRightInstructions, setShowRightInstructions] = useState(true);
 
+    const categoryOptions = {
+      Persuasive_Propaganda: ["Repetition", "Exaggeration", "Flag-Waving", "Slogans", "Bandwagon", "Causal Oversimplification", "Doubt"],
+      Inflammatory_Language: ["Demonization", "Name-Calling", "Hyperbole", "Straw Man Arguments"],
+  };
 
     const [showSurvey, setShowSurvey] = useState(false);
     const [surveyResponses, setSurveyResponses] = useState({});
@@ -105,6 +109,72 @@ export default function NewsAnnotationTool() {
     const [difficulty, setDifficulty] = useState(0);
     const [openFeedback, setOpenFeedback] = useState("");
     const [showThankYou, setShowThankYou] = useState(false);
+
+    const articleId = articles[currentArticleIndex]?.id;
+
+const autoSaveAnnotation = (category, subcategory) => {
+  if (selectedText && category && subcategory && articleId) {
+    setTextAnnotations((prevAnnotations) => ({
+      ...prevAnnotations,
+      [articleId]: [
+        ...(prevAnnotations[articleId] || []),
+        { text: selectedText, category, subcategory },
+      ],
+    }));
+    
+    setSelectedText("");
+    setSelectedCategory("");
+    setSelectedSubcategory("");
+    
+  }
+};
+
+// Update category and subcategory selection handlers
+const handleCategoryChange = (e) => {
+  const newCategory = e.target.value;
+  setSelectedCategory(newCategory);
+  if (selectedText && selectedSubcategory) {
+    autoSaveAnnotation(newCategory, selectedSubcategory);
+  }
+};
+
+const handleSubcategoryChange = (e) => {
+  const newSubcategory = e.target.value;
+  setSelectedSubcategory(newSubcategory);
+  if (selectedText && selectedCategory) {
+    autoSaveAnnotation(selectedCategory, newSubcategory);
+  }
+};
+
+// Update JSX for annotation inputs
+<select
+  className="p-2 border border-gray-300 rounded-md mb-2"
+  value={selectedCategory}
+  onChange={handleCategoryChange}
+>
+  <option value="">Select a Category</option>
+  {Object.keys(categoryOptions).map((category) => (
+    <option key={category} value={category}>
+      {category}
+    </option>
+  ))}
+</select>
+
+{selectedCategory && (
+  <select
+    className="p-2 border border-gray-300 rounded-md mb-2"
+    value={selectedSubcategory}
+    onChange={handleSubcategoryChange}
+  >
+    <option value="">Select a Subcategory</option>
+    {categoryOptions[selectedCategory].map((subcategory) => (
+      <option key={subcategory} value={subcategory}>
+        {subcategory}
+      </option>
+    ))}
+  </select>
+)}
+
 
     const downloadAnnotations = (annotations, textAnnotations, surveyResponses) => {
         const articleTitles = articles.map((article) => ({
@@ -265,10 +335,7 @@ export default function NewsAnnotationTool() {
         });
     };
 
-    const categoryOptions = {
-        Persuasive_Propaganda: ["Repetition", "Exaggeration", "Flag-Waving", "Slogans", "Bandwagon", "Causal Oversimplification", "Doubt"],
-        Inflammatory_Language: ["Demonization", "Name-Calling", "Hyperbole", "Straw Man Arguments"],
-    };
+    
 
     // useEffect(() => {
     //     if (showThankYou) {
@@ -391,54 +458,58 @@ export default function NewsAnnotationTool() {
                     </Button>
                 </div>
 
-                {/* Highlighted Text Annotation */}
-                {selectedText && (
-                    <div className="mt-4 flex flex-col items-center">
-                        <p className="text-sm text-gray-700 mb-2">Selected Text: "{selectedText}"</p>
-                        <select className="p-2 border border-gray-300 rounded-md mb-2" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                            <option value="">Select a Category</option>
-                            {Object.keys(categoryOptions).map((category) => (
-                                <option key={category} value={category}>
-                                    {category}
-                                </option>
-                            ))}
-                        </select>
-                        {selectedCategory && (
-                            <select className="p-2 border border-gray-300 rounded-md mb-2" value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
-                                <option value="">Select a Subcategory</option>
-                                {categoryOptions[selectedCategory].map((subcategory) => (
-                                    <option key={subcategory} value={subcategory}>
-                                        {subcategory}
-                                    </option>
-                                ))}
-                            </select>
-                        )}
-                        <Button onClick={handleTextAnnotation} className="bg-blue-500">
-                            Save Annotation
-                        </Button>
-                    </div>
-                )}
 
-     {/* Next Article Button */}
-     {/* <div className="mt-6">
-     <Button onClick={handleNextArticle} disabled={currentArticleIndex >= articles.length - 1} className="bg-blue-500">
-       Next Article
-     </Button>
-   </div> */}
-                {/* Display Annotations with Remove Feature */}
-                {textAnnotations[articles[currentArticleIndex]?.id]?.length > 0 && (
-                    <div className="mt-6 bg-gray-100 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold">Annotated Text Excerpts:</h3>
-                        {textAnnotations[articles[currentArticleIndex]?.id].map((annotation, index) => (
-                            <div key={index} className="flex justify-between items-center mt-2">
-                                <p className="text-sm text-red-600">"{annotation.text}" - {annotation.category} → {annotation.subcategory}</p>
-                                <Button onClick={() => handleRemoveAnnotation(articles[currentArticleIndex]?.id, index)} className="bg-gray-400 text-white text-xs px-2 py-1 rounded">
-                                    Remove
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
-                )}
+{selectedText && (
+  <div className="mt-4 flex flex-col items-center">
+    <p className="text-sm text-gray-700 mb-2">Selected Text: "{selectedText}"</p>
+    <select
+      className="p-2 border border-gray-300 rounded-md mb-2"
+      value={selectedCategory}
+      onChange={handleCategoryChange}
+    >
+      <option value="">Select a Category</option>
+      {Object.keys(categoryOptions).map((category) => (
+        <option key={category} value={category}>
+          {category}
+        </option>
+      ))}
+    </select>
+    {selectedCategory && (
+      <select
+        className="p-2 border border-gray-300 rounded-md mb-2"
+        value={selectedSubcategory}
+        onChange={handleSubcategoryChange}
+      >
+        <option value="">Select a Subcategory</option>
+        {categoryOptions[selectedCategory].map((subcategory) => (
+          <option key={subcategory} value={subcategory}>
+            {subcategory}
+          </option>
+        ))}
+      </select>
+    )}
+  </div>
+)}
+
+{/* Display Saved Annotations */}
+{textAnnotations[articles[currentArticleIndex]?.id]?.length > 0 && (
+  <div className="mt-6 bg-gray-100 p-4 rounded-md">
+    <h3 className="text-lg font-semibold">Annotated Text Excerpts:</h3>
+    {textAnnotations[articles[currentArticleIndex]?.id].map((annotation, index) => (
+      <div key={index} className="flex justify-between items-center mt-2">
+        <p className="text-sm text-red-600">
+          "{annotation.text}" – {annotation.category} → {annotation.subcategory}
+        </p>
+        <Button
+          onClick={() => handleRemoveAnnotation(articles[currentArticleIndex]?.id, index)}
+          className="bg-gray-400 text-white text-xs px-2 py-1 rounded"
+        >
+          Remove
+        </Button>
+      </div>
+    ))}
+  </div>
+)}
 
 
             {/* Survey Form */}
