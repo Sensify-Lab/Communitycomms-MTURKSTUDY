@@ -96,6 +96,10 @@ export default function NewsAnnotationTool() {
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedSubcategory, setSelectedSubcategory] = useState("");
     const [showRightInstructions, setShowRightInstructions] = useState(true);
+    const handleCategoryButtonClick = (categoryKey) => {
+      setSelectedCategory(categoryKey);
+      setSelectedSubcategory(""); // Clear the subcategory so user chooses it fresh
+    };
 
     const categoryOptions = {
       Persuasive_Propaganda: ["Repetition", "Exaggeration", "Flag-Waving", "Slogans", "Bandwagon", "Causal Oversimplification", "Doubt"],
@@ -160,7 +164,7 @@ const handleSubcategoryChange = (e) => {
   ))}
 </select>
 
-{selectedCategory && (
+{selectedCategory && Array.isArray(categoryOptions[selectedCategory]) && (
   <select
     className="p-2 border border-gray-300 rounded-md mb-2"
     value={selectedSubcategory}
@@ -449,11 +453,12 @@ const handleSubcategoryChange = (e) => {
                 )}
 
                 {/* Annotation Buttons */}
+
                 <div className="mt-4 flex justify-center space-x-4">
-                    <Button onClick={() => handleAnnotation("Flame Rhetoric")} className="bg-red-500">
+                    <Button onClick={() => handleCategoryButtonClick("Inflammatory_Language")} className="bg-red-500">
                         Flame Rhetoric
                     </Button>
-                    <Button onClick={() => handleAnnotation("Propaganda")} className="bg-yellow-500">
+                    <Button onClick={() => handleCategoryButtonClick("Persuasive_Propaganda")} className="bg-yellow-500">
                         Persuasive Propaganda
                     </Button>
                 </div>
@@ -474,20 +479,20 @@ const handleSubcategoryChange = (e) => {
         </option>
       ))}
     </select>
-    {selectedCategory && (
-      <select
-        className="p-2 border border-gray-300 rounded-md mb-2"
-        value={selectedSubcategory}
-        onChange={handleSubcategoryChange}
-      >
-        <option value="">Select a Subcategory</option>
-        {categoryOptions[selectedCategory].map((subcategory) => (
-          <option key={subcategory} value={subcategory}>
-            {subcategory}
-          </option>
-        ))}
-      </select>
-    )}
+{selectedCategory && categoryOptions[selectedCategory] && (
+  <select
+    className="p-2 border border-gray-300 rounded-md mb-2"
+    value={selectedSubcategory}
+    onChange={handleSubcategoryChange}
+  >
+    <option value="">Select a Subcategory</option>
+    {categoryOptions[selectedCategory].map((subcategory) => (
+      <option key={subcategory} value={subcategory}>
+        {subcategory}
+      </option>
+    ))}
+  </select>
+)}
   </div>
 )}
 
@@ -599,4 +604,4 @@ const handleSubcategoryChange = (e) => {
 </div>
         </div>
     );
-}
+  }
