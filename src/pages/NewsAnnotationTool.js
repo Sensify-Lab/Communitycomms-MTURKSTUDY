@@ -110,7 +110,6 @@ export default function NewsAnnotationTool() {
     const [surveyResponses, setSurveyResponses] = useState({});
     const [confidence, setConfidence] = useState(0);
     const [bias, setBias] = useState(0);
-    const [difficulty, setDifficulty] = useState(0);
     const [openFeedback, setOpenFeedback] = useState("");
     const [showThankYou, setShowThankYou] = useState(false);
 
@@ -240,7 +239,6 @@ const handleSubcategoryChange = (e) => {
             if (
               confidence === 0 ||
               bias === 0 ||
-              difficulty === 0 ||
               openFeedback.trim() === ""
             ) {
               alert("Please answer all survey questions before continuing.");
@@ -269,7 +267,7 @@ const handleSubcategoryChange = (e) => {
 
             setSurveyResponses((prev) => ({
               ...prev,
-              [articleId]: { confidence, bias, difficulty, openFeedback },
+              [articleId]: { confidence, bias, openFeedback },
             }));
       
             if (currentArticleIndex < articles.length - 1) {
@@ -280,7 +278,6 @@ const handleSubcategoryChange = (e) => {
               setShowSurvey(false);
               setConfidence(0);
               setBias(0);
-              setDifficulty(0);
               setOpenFeedback("");
             } else {
               setShowThankYou(true);
@@ -346,7 +343,8 @@ const handleSubcategoryChange = (e) => {
     //       downloadAnnotations(annotations, textAnnotations, surveyResponses);
     //     }
     //   }, [showThankYou]);
-
+    const generateCode = () => `MTURK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const completionCode = generateCode();
 
     useEffect(() => {
         if (showThankYou) {
@@ -360,6 +358,7 @@ const handleSubcategoryChange = (e) => {
             surveyResponses,
             articleTitles,
             timestamp: new Date().toISOString(),
+            completionCode,
           };
     
           const submissionsRef = ref(database, "submissions");
@@ -375,8 +374,6 @@ const handleSubcategoryChange = (e) => {
 
 
     if (showThankYou) {
-        const generateCode = () => `MTURK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        const completionCode = generateCode();
 
 
         return (
@@ -523,24 +520,38 @@ const handleSubcategoryChange = (e) => {
             <h3 className="text-lg font-semibold mb-2">🧠 Post-Annotation Survey</h3>
 
             <label className="block mt-4">1. How confident are you in your tagging decisions?</label>
-            <select value={confidence} onChange={(e) => setConfidence(Number(e.target.value))} className="w-full p-2 border rounded">
-              <option value={0}>Select</option>
-              <option value={1}>1 – Not at all confident</option>
-              <option value={2}>2 – Slightly confident</option>
-              <option value={3}>3 – Moderately confident</option>
-              <option value={4}>4 – Very confident</option>
-              <option value={5}>5 – Extremely confident</option>
-            </select>
+            <div className="mt-2 space-y-1">
+  {[1, 2, 3, 4, 5].map((val) => (
+    <label key={val} className="block text-sm">
+      <input
+        type="radio"
+        name="confidence"
+        value={val}
+        checked={confidence === val}
+        onChange={() => setConfidence(val)}
+        className="mr-2"
+      />
+      {val} – {["Not at all confident", "Slightly confident", "Moderately confident", "Very confident", "Extremely confident"][val - 1]}
+    </label>
+  ))}
+</div>
 
             <label className="block mt-4">2. To what extent is the article misleading or biased?</label>
-            <select value={bias} onChange={(e) => setBias(Number(e.target.value))} className="w-full p-2 border rounded">
-              <option value={0}>Select</option>
-              <option value={1}>1 – Not at all</option>
-              <option value={2}>2 – Slightly</option>
-              <option value={3}>3 – Moderately</option>
-              <option value={4}>4 – Very much</option>
-              <option value={5}>5 – Extremely</option>
-            </select>
+            <div className="mt-2 space-y-1">
+  {[1, 2, 3, 4, 5].map((val) => (
+    <label key={val} className="block text-sm">
+      <input
+        type="radio"
+        name="bias"
+        value={val}
+        checked={bias === val}
+        onChange={() => setBias(val)}
+        className="mr-2"
+      />
+      {val} – {["Not at all", "Slightly", "Moderately", "Very much", "Extremely"][val - 1]}
+    </label>
+  ))}
+</div>
 
             <label className="block mt-4">3. Why did you tag this way? What made it stand out?
             Please explain your reasoning by referring to the specific words, phrases, or sentences you highlighted.
@@ -552,7 +563,7 @@ const handleSubcategoryChange = (e) => {
             <Button
               onClick={handleNextArticle}
               className="mt-4 bg-green-600 text-white"
-              disabled={confidence === 0 || bias === 0 || difficulty === 0 || openFeedback.trim() === ""}
+              disabled={confidence === 0 || bias === 0 || openFeedback.trim() === ""}
             >
               {currentArticleIndex < articles.length - 1 ? "Submit Survey & Load Next Article" : "Finish"}
             </Button>
