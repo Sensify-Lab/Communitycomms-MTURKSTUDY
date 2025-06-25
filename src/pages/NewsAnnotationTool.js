@@ -6,6 +6,19 @@ import Papa from "papaparse";
 
 import { database, ref, push } from "../firebaseConfig";
 
+// loops through the title and capitalizes all non-conjunction words
+function titleCapitalization(title){ 
+  const titleWords = title.split(" ");
+  const conjunctions = ["a", "to", "off", "over", "from", "into", "with", "yet", "so", "an", "and", "as", "at", "but", "by", "for", "in", "nor", "of", "on", "or", "the", "up"];
+  for (let i = 0; i < titleWords.length; i++) {
+    if (!(conjunctions.includes(titleWords[i]))){
+      // if the title word is not a conjunction, make it caps 
+      titleWords[i] = titleWords[i].charAt(0).toUpperCase() + titleWords[i].slice(1);
+    }
+  }
+  return titleWords.join(" ");
+
+}
 const DropdownItem = ({ icon, title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -30,62 +43,6 @@ const DropdownItem = ({ icon, title, children }) => {
 const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
   };
-/*
-    const sampleArticles = [
-        {
-          id: 1,
-          title: "Global Markets in Turmoil as Stocks Tumble",
-          content: "The global stock markets experienced a sharp downturn today as economic uncertainty and fears of recession loomed large. Investors reacted to the latest inflation data, which showed a continued rise in consumer prices, leading to a sell-off in major indices. The Dow Jones Industrial Average dropped over 500 points, while the Nasdaq Composite plunged 2.8%. Market analysts cited concerns over interest rate hikes and geopolitical tensions as key factors behind the decline..."
-        },
-        {
-          id: 2,
-          title: "Government Announces Sweeping Climate Policy Reforms",
-          content: "In a landmark decision, the government unveiled a series of new climate policy reforms aimed at reducing carbon emissions by 40% over the next decade. The policies include stricter regulations on industrial pollution, significant investments in renewable energy sources, and incentives for electric vehicle adoption. Environmental groups have largely praised the move, though some industry leaders warn of potential economic disruptions..."
-        },
-        {
-          id: 3,
-          title: "Tech Giants Face Intense Scrutiny in Antitrust Investigation",
-          content: "Several major technology firms are under investigation by federal regulators for alleged monopolistic practices and anti-competitive behavior. The inquiry focuses on how these companies leverage their dominance in online advertising, search algorithms, and cloud computing to stifle competition. Lawmakers are calling for increased oversight and potential regulatory reforms to ensure a level playing field for smaller tech startups..."
-        },
-        {
-          id: 4,
-          title: "Health Officials Warn of Rising COVID-19 Cases",
-          content: "Public health officials have raised concerns about a recent uptick in COVID-19 cases across several regions. The increase is attributed to the emergence of a new subvariant that appears to be more transmissible. Hospitals are beginning to see a rise in admissions, prompting discussions about reintroducing certain preventative measures such as mask mandates and booster shot campaigns..."
-        },
-        {
-          id: 5,
-          title: "NASA Successfully Launches Next-Generation Space Telescope",
-          content: "NASA has successfully launched its next-generation space telescope, marking a significant milestone in space exploration. The telescope, which will be positioned nearly a million miles from Earth, is designed to capture high-resolution images of distant galaxies, potentially unlocking secrets about the origins of the universe. Scientists expect the first images to be transmitted back to Earth within the next few months..."
-        },
-        {
-          id: 6,
-          title: "Rising Interest Rates Impact Housing Market",
-          content: "Mortgage rates have climbed to their highest levels in over a decade, causing a slowdown in the housing market. Homebuyers are facing higher borrowing costs, leading to reduced affordability and declining home sales. Real estate experts predict that home prices may start to drop in response to weaker demand..."
-        },
-        {
-          id: 7,
-          title: "Major Cyberattack Disrupts Government Operations",
-          content: "A sophisticated cyberattack has targeted multiple government agencies, causing significant disruptions to online services and communications. Cybersecurity experts believe the attack originated from a state-sponsored hacking group. Authorities are working to restore systems and assess the full extent of the damage..."
-        },
-        {
-          id: 8,
-          title: "AI Technology Advances Rapidly, Raising Ethical Concerns",
-          content: "Recent breakthroughs in artificial intelligence have led to major advancements in automation, data analysis, and machine learning. However, experts warn that these developments also raise ethical concerns, including job displacement, privacy risks, and potential misuse of AI-driven decision-making systems..."
-        },
-        {
-          id: 9,
-          title: "International Summit Seeks to Address Global Food Crisis",
-          content: "World leaders have gathered for an international summit aimed at addressing the ongoing global food crisis. Rising food prices, supply chain disruptions, and climate change have contributed to food shortages in several countries. The summit will focus on coordinated efforts to improve agricultural sustainability and food distribution networks..."
-        },
-        {
-          id: 10,
-          title: "Scientists Develop Promising New Cancer Treatment",
-          content: "A team of scientists has developed a promising new cancer treatment that uses targeted immunotherapy to attack cancer cells while preserving healthy tissue. Early clinical trials have shown encouraging results, with some patients experiencing significant tumor shrinkage. Researchers are optimistic that this breakthrough could lead to more effective cancer treatments in the near future..."
-        },
-      ];
-    */
-
-      
 
 export default function NewsAnnotationTool() {
     const [articles, setArticles] = useState([]);
@@ -182,7 +139,7 @@ const handleSubcategoryChange = (e) => {
     const downloadAnnotations = (annotations, textAnnotations, surveyResponses) => {
         const articleTitles = articles.map((article) => ({
             id: article.id,
-            title: article.title,
+            title: titleCapitalization(articles.title), //applies capitalization to each article
         }));
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 
@@ -435,11 +392,11 @@ const handleSubcategoryChange = (e) => {
                 <Button onClick={() => setShowRightInstructions(!showRightInstructions)} className="bg-blue-600 text-white mb-4">
                     {showRightInstructions ? "Hide Instructions" : "Show Instructions"}
                 </Button>
-
                 {articles.length > 0 && (
                     <Card>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
-                            {articles[currentArticleIndex]?.title}
+                          {/*Calls the article capitalization function*/}
+                            {titleCapitalization(articles[currentArticleIndex]?.title)}
                         </h2>
                         <CardContent>
                             <p className="text-gray-700" onMouseUp={handleTextSelection}>
@@ -450,7 +407,6 @@ const handleSubcategoryChange = (e) => {
                 )}
 
                 {/* Annotation Buttons */}
-
                 <div className="mt-4 flex justify-center space-x-4">
                     <Button onClick={() => handleCategoryButtonClick("Inflammatory_Language")} className="bg-red-500">
                         Flame Rhetoric
