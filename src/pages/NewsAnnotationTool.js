@@ -6,6 +6,34 @@ import Papa from "papaparse";
 
 import { database, ref, push } from "../firebaseConfig";
 
+// adds paragraph breaks after 100 words. 
+function paragraphAdd(text) {
+
+  console.log("'tis running");
+
+  const words = text.split(/\s+/); //split into words by whitespace
+  let result = "";
+  let wordCount = 0;
+
+  // loop over the array of words
+  for (let i = 0; i < words.length; i++) {
+    result += words[i];
+
+    // add a space unless it's the last word
+    if (i < words.length - 1) result += " ";
+
+    // tracks the word count
+    wordCount++;
+
+    // when past 100 words, inster a break after the next period
+    if (wordCount >= 100 && words[i].endsWith(".")) {
+      console.log("Paragraph break added after 100 words");
+      result += "\n\n";
+      wordCount = 0; // Reset word counter for next paragraph
+    }
+  }
+  return result;
+}
 // loops through the title and capitalizes all non-conjunction words
 function titleCapitalization(title){ 
   const titleWords = title.split(" ");
@@ -19,6 +47,12 @@ function titleCapitalization(title){
   return titleWords.join(" ");
 
 }
+
+// Function to shuffle array randomly
+const shuffleArray = (array) => {
+  return array.sort(() => Math.random() - 0.5);
+};
+
 const DropdownItem = ({ icon, title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -39,10 +73,6 @@ const DropdownItem = ({ icon, title, children }) => {
   );
 };
 
-// Function to shuffle array randomly
-const shuffleArray = (array) => {
-    return array.sort(() => Math.random() - 0.5);
-  };
 
 export default function NewsAnnotationTool() {
     const [articles, setArticles] = useState([]);
@@ -399,9 +429,11 @@ const handleSubcategoryChange = (e) => {
                             {titleCapitalization(articles[currentArticleIndex]?.title)}
                         </h2>
                         <CardContent>
-                            <p className="text-gray-700" onMouseUp={handleTextSelection}>
-                                {articles[currentArticleIndex]?.content}
-                            </p>
+                        {paragraphAdd(articles[currentArticleIndex]?.content).split("\n\n").map((para, idx) => (
+                        <p key={idx} className="text-gray-700 mb-4" onMouseUp={handleTextSelection}>
+                        {para}
+                        </p>
+))}
                         </CardContent>
                     </Card>
                 )}
