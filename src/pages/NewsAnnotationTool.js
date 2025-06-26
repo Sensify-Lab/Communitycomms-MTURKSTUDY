@@ -167,7 +167,7 @@ const handleSubcategoryChange = (e) => {
     // }, []);
 
     useEffect(() => {
-        fetch("/articles.csv")
+        fetch("/new_filtered_news_300_700_words.csv")
         .then((response) => response.text())
         .then((csvText) => {
           Papa.parse(csvText, {
