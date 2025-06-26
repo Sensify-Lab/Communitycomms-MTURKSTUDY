@@ -8,31 +8,42 @@ import { database, ref, push } from "../firebaseConfig";
 
 // adds paragraph breaks after 100 words. 
 function paragraphAdd(text) {
-
-  console.log("'tis running");
-
-  const words = text.split(/\s+/); //split into words by whitespace
-  let result = "";
+  const words = text.split(/\s+/);
+  const paragraphs = [];
+  let paragraph = "";
   let wordCount = 0;
+  let insideQuote = false;
 
-  // loop over the array of words
   for (let i = 0; i < words.length; i++) {
-    result += words[i];
-
-    // add a space unless it's the last word
-    if (i < words.length - 1) result += " ";
-
-    // tracks the word count
+    const word = words[i];
+    paragraph += word + " ";
     wordCount++;
 
-    // when past 100 words, inster a break after the next period
-    if (wordCount >= 100 && words[i].endsWith(".")) {
-      console.log("Paragraph break added after 100 words");
-      result += "\n\n";
-      wordCount = 0; // Reset word counter for next paragraph
+    // Detect quote entry/exit
+    if (word.includes('"')) {
+      const quoteCount = (word.match(/"/g) || []).length;
+      // Toggle quote status for each odd quote encountered
+      if (quoteCount % 2 !== 0) {
+        insideQuote = !insideQuote;
+      }
+    }
+
+    // Only insert break if:
+    // - 150+ words
+    // - Ends with a period
+    // - Not inside a quote
+    if (wordCount >= 150 && word.endsWith(".") && !insideQuote) {
+      paragraphs.push(paragraph.trim());
+      paragraph = "";
+      wordCount = 0;
     }
   }
-  return result;
+
+  if (paragraph.trim()) {
+    paragraphs.push(paragraph.trim());
+  }
+
+  return paragraphs;
 }
 // loops through the title and capitalizes all non-conjunction words
 function titleCapitalization(title){ 
@@ -101,6 +112,10 @@ export default function NewsAnnotationTool() {
     const [showThankYou, setShowThankYou] = useState(false);
 
     const articleId = articles[currentArticleIndex]?.id;
+  
+    const countWords = (text) => {
+      return text.trim().split(/\s+/).filter(Boolean).length;
+    };
 
 const autoSaveAnnotation = (category, subcategory) => {
   if (selectedText && category && subcategory && articleId) {
@@ -429,10 +444,10 @@ const handleSubcategoryChange = (e) => {
                             {titleCapitalization(articles[currentArticleIndex]?.title)}
                         </h2>
                         <CardContent>
-                        {paragraphAdd(articles[currentArticleIndex]?.content).split("\n\n").map((para, idx) => (
-                        <p key={idx} className="text-gray-700 mb-4" onMouseUp={handleTextSelection}>
-                        {para}
-                        </p>
+                        {paragraphAdd(articles[currentArticleIndex]?.content).map((para, idx) => (
+  <p key={idx} className="text-gray-700 mb-4" onMouseUp={handleTextSelection}>
+    {para}
+  </p>
 ))}
                         </CardContent>
                     </Card>
@@ -541,20 +556,33 @@ const handleSubcategoryChange = (e) => {
   ))}
 </div>
 
-            <label className="block mt-4">3. Why did you tag this way? What made it stand out?
-            Please explain your reasoning by referring to the specific words, phrases, or sentences you highlighted.
-            Provide your reasoning for each of the highlights you made in this article. Explain why you believe they represent persuasive propaganda, inflammatory language, or something misleading.
+<label className="block mt-4">
+  3. Why did you tag this way? What made it stand out?
+</label>
+<p className="text-sm text-gray-600 mb-1">
+  Word count: {countWords(openFeedback)} (minimum 5 words)
+</p>
+<textarea
+  value={openFeedback}
+  onChange={(e) => setOpenFeedback(e.target.value)}
+  rows={6}
+  className="w-full p-2 border rounded"
+  placeholder="For example: “I tagged the phrase ‘reckless and corrupt regime’ as inflammatory because it uses strong language to attack without evidence."
+></textarea>
 
-            </label>
-            <textarea value={openFeedback} onChange={(e) => setOpenFeedback(e.target.value)} rows={6} className="w-full p-2 border rounded" placeholder="For example: “I tagged the phrase ‘reckless and corrupt regime’ as inflammatory because it uses strong language to attack without evidence.."></textarea>
-
-            <Button
-              onClick={handleNextArticle}
-              className="mt-4 bg-green-600 text-white"
-              disabled={confidence === 0 || bias === 0 || openFeedback.trim() === ""}
-            >
-              {currentArticleIndex < articles.length - 1 ? "Submit Survey & Load Next Article" : "Finish"}
-            </Button>
+<Button
+  onClick={handleNextArticle}
+  className="mt-4 bg-green-600 text-white"
+  disabled={
+    confidence === 0 ||
+    bias === 0 ||
+    countWords(openFeedback) < 5
+  }
+>
+  {currentArticleIndex < articles.length - 1
+    ? "Submit Survey & Load Next Article"
+    : "Finish"}
+</Button>
           </div>
         ) : (
           <div className="mt-6">
